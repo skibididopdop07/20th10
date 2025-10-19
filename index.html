@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Món Quà Đặc Biệt Dành Tặng Em</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CÀI ĐẶT TỔNG THỂ --- */
+        :root {
+            --primary-color: #d94685;
+            --background-color: #000000; /* Nền không gian tối */
+            --card-bg-color: rgba(0, 0, 0, 0.25); /* Thay đổi: Nền trong suốt kiểu glassmorphism */
+            --text-color: #f0e6ff; /* Thay đổi: Màu chữ sáng */
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: move;
+        }
+        
+        #space-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* --- CONTAINER CHUNG --- */
+        .container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.2s ease-in-out, visibility 1.2s;
+            z-index: 2;
+        }
+
+        .hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        /* --- HỘP ĐĂNG NHẬP --- */
+        .login-box {
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 40px 50px;
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+            width: 320px;
+            animation: fadeInFromBottom 1s ease-out;
+        }
+
+        .login-box h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.8em;
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            text-shadow: 0 0 15px var(--primary-color);
+        }
+        
+        .login-box p {
+            color: #fff;
+        }
+
+        #password-input {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 30px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.15);
+            color: white;
+            font-size: 1em;
+            outline: none;
+        }
+
+        #login-button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 30px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #login-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(217, 70, 133, 0.4);
+        }
+        
+        .error {
+            color: #ff8fab;
+            margin-top: 15px;
+            height: 20px;
+            font-weight: bold;
+        }
+
+        /* --- NỘI DUNG CHÍNH - BỐ CỤC THIỆP MỚI --- */
+        #main-content {
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .main-card {
+            width: 90%;
+            max-width: 1000px;
+            background: var(--card-bg-color);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px 40px;
+            box-sizing: border-box;
+            opacity: 0;
+            animation: popIn 1s 0.5s ease-out forwards;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 20px;
+        }
+        
+        .card-header .heart {
+             font-size: 1.5em;
+             color: var(--primary-color);
+             margin-right: 15px;
+             animation: heartbeat 1.5s infinite;
+        }
+        
+        .card-header h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 2.5em;
+            color: var(--primary-color);
+            margin: 0;
+            text-shadow: 0 0 10px var(--primary-color);
+        }
+
+        .card-body {
+            display: flex;
+            gap: 30px;
+        }
+
+        .left-column {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .right-column {
+            flex: 1;
+        }
+
+        .widget {
+            padding: 0;
+        }
+
+        .text-widget p {
+            font-size: 1em;
+            line-height: 1.8;
+            color: var(--text-color);
+            min-height: 100px;
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+            padding: 10px;
+        }
+
+        .video-widget {
+            border-radius: 15px;
+            overflow: hidden;
+            height: 280px; /* Điều chỉnh chiều cao cho phù hợp */
+        }
+        
+        .video-widget video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-widget {
+            border-radius: 15px;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        .image-widget img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: opacity 1s ease-in-out, transform 0.5s ease-out;
+        }
+        .image-widget:hover img {
+            transform: scale(1.05);
+        }
+        
+        /* --- CSS CHO NÚT BẤM MỚI --- */
+        .action-button {
+            display: inline-block;
+            padding: 12px 25px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 30px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .action-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(217, 70, 133, 0.4);
+        }
+
+        /* --- HIỆU ỨNG ANIMATION --- */
+        @keyframes fadeInFromBottom {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+         @keyframes heartbeat {
+             0% { transform: scale(1); }
+             50% { transform: scale(1.3); }
+             100% { transform: scale(1); }
+        }
+        
+        /* --- RESPONSIVE CHO DI ĐỘNG --- */
+        @media (max-width: 900px) {
+            body { overflow-y: auto; }
+            .main-card { width: 95%; margin: 40px 0; }
+            .card-body { flex-direction: column; }
+            .right-column { height: 300px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="space-canvas"></canvas>
+
+    <div id="login-container" class="container">
+        <div class="login-box">
+            <h1>Món Quà Bí Mật</h1>
+            <p>Nhập mật mã yêu thương</p>
+            <input type="password" id="password-input" placeholder="Nhập pass đi">
+            <button id="login-button">Mở Quà</button>
+            <p id="error-message" class="error"></p>
+        </div>
+    </div>
+
+    <div id="main-content" class="container hidden">
+        <div class="main-card">
+            <div class="card-header">
+                <span class="heart">❤️</span>
+                <h1>Gửi người phụ nữ tuyệt vời!</h1>
+            </div>
+            <div class="card-body">
+                <div class="left-column">
+                    <div class="widget text-widget">
+                        <p id="message-text"></p>
+                    </div>
+                    
+                    <div class="widget">
+                        <a href="https://panbap.github.io/galaxylovex/index.html?id=aHR0cHM6Ly9pLmliYi5jby9WY3dWZ2R2US9JTUctMDA4MC5qcGcsaHR0cHM6Ly9pLmliYi5jby9TWHNLRzlnbS9JTUctMDA4MS5qcGcsaHR0cHM6Ly9pLmliYi5jby9UREcwSFhkei9JTUctMDA3OS5qcGcsaHR0cHM6Ly9pLmliYi5jby9QWjk3ZnMyaC9JTUctMDA3OC5qcGc=&texts=TG92ZSxHYWxheHk=&music=" target="_blank" class="action-button">Xem Thêm 💖</a>
+                    </div>
+
+                    <div class="widget video-widget">
+                         <video autoplay loop muted playsinline>
+                             <source src="video.mp4" type="video/mp4">
+                         </video>
+                    </div>
+                </div>
+                <div class="right-column">
+                    <div class="widget image-widget">
+                         <img src="https://placehold.co/600x800/2a1a3d/f0e6ff?text=Ảnh+kỷ+niệm" alt="Ảnh kỷ niệm của chúng ta">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <audio id="background-music" loop>
+        <source src="chill.mp3" type="audio/mpeg">
+    </audio>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- CÀI ĐẶT ---
+            const CORRECT_PASSWORD = "20-10"; 
+
+            // --- LẤY CÁC ELEMENT TỪ HTML ---
+            const loginContainer = document.getElementById('login-container');
+            const mainContent = document.getElementById('main-content');
+            const loginButton = document.getElementById('login-button');
+            const passwordInput = document.getElementById('password-input');
+            const errorMessage = document.getElementById('error-message');
+            const audio = document.getElementById('background-music');
+            const memoriesLink = document.querySelector('.action-button'); // Thêm dòng này
+
+            // --- XỬ LÝ SỰ KIỆN ĐĂNG NHẬP ---
+            const handleLogin = () => {
+                if (passwordInput.value === CORRECT_PASSWORD) {
+                    loginContainer.classList.add('hidden');
+                    mainContent.classList.remove('hidden');
+                    audio.play().catch(e => console.warn("Browser prevented autoplay."));
+                    startTypingAnimation();
+                } else {
+                    errorMessage.textContent = 'Mật mã chưa đúng!';
+                    passwordInput.value = '';
+                }
+            };
+            
+            loginButton.addEventListener('click', handleLogin);
+            passwordInput.addEventListener('keyup', (event) => {
+                if (event.key === 'Enter') handleLogin();
+            });
+
+            // --- CODE MỚI: DỪNG NHẠC KHI CLICK ---
+            if (memoriesLink) {
+                memoriesLink.addEventListener('click', () => {
+                    audio.pause();
+                });
+            }
+            // ----------------------------------------
+
+            // --- TỰ ĐỘNG ĐỔI ẢNH ---
+            const imageElement = document.querySelector('.image-widget img');
+            const images = [
+                'anh1.jpg',
+                'anh2.jpg',
+                'anh3.jpg',
+                'anh4.jpg'
+            ];
+            let currentImageIndex = 0;
+
+            if (imageElement) {
+                setInterval(() => {
+                    imageElement.style.opacity = '0';
+                    setTimeout(() => {
+                        currentImageIndex = (currentImageIndex + 1) % images.length;
+                        imageElement.src = images[currentImageIndex];
+                        imageElement.style.opacity = '1';
+                    }, 1000);
+                }, 5000);
+            }
+
+            // --- HIỆU ỨNG CHỮ HIỆN CHẬM ---
+            const messageEl = document.getElementById('message-text');
+            const messageText = "Chúc bạn ngày 20/10 thật vui vẻ, nhận được thật nhiều hoa, quà và lời chúc ý nghĩa nhé!Luôn xinh đẹp, tự tin và tỏa sáng trong mọi hoàn cảnh 🌷";
+
+            function typeWriter(element, text, speed) {
+                let i = 0;
+                element.innerHTML = '';
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    }
+                }
+                type();
+            }
+
+            function startTypingAnimation() {
+                 setTimeout(() => { 
+                     typeWriter(messageEl, messageText, 50);
+                 }, 1500);
+            }
+            
+            // --- HIỆU ỨNG NỀN 3D KHÔNG GIAN VÀ SAO BĂNG ---
+            const canvas = document.getElementById('space-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let stars = [];
+            let shootingStars = [];
+            const numStars = 500;
+            const numShootingStars = 3;
+
+            let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+            window.addEventListener('mousemove', (event) => {
+                mouse.x = event.clientX;
+                mouse.y = event.clientY;
+            });
+
+            class Star {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                    this.radius = Math.random() * 1.2 + 0.5;
+                    this.baseX = this.x;
+                    this.baseY = this.y;
+                    this.speed = this.radius * 0.05; 
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+                    ctx.fillStyle = `rgba(255, 255, 255, 0.8)`;
+                    ctx.fill();
+                }
+                update() {
+                    const mouseX = mouse.x - canvas.width / 2;
+                    const mouseY = mouse.y - canvas.height / 2;
+                    this.x = this.baseX + mouseX * this.speed;
+                    this.y = this.baseY + mouseY * this.speed;
+                    this.baseX -= 0.1;
+                    if (this.baseX < -this.radius) {
+                        this.baseX = canvas.width + this.radius;
+                    }
+                    this.draw();
+                }
+            }
+
+            class ShootingStar {
+                constructor() { this.reset(); }
+                reset() {
+                    this.x = Math.random() * canvas.width * 2;
+                    this.y = Math.random() * -canvas.height * 0.5;
+                    this.len = Math.random() * 100 + 80;
+                    this.speed = Math.random() * 8 + 6;
+                    this.alpha = 1;
+                    this.hue = Math.random() * 30 + 280;
+                }
+                draw() {
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    ctx.rotate(Math.PI / 4.5);
+                    const gradient = ctx.createLinearGradient(0, 0, 0, this.len);
+                    gradient.addColorStop(0, `hsla(${this.hue}, 100%, 80%, ${this.alpha})`);
+                    gradient.addColorStop(1, 'transparent');
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = Math.random() * 1.5 + 0.5;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.lineTo(0, this.len);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+                update() {
+                    this.x -= this.speed;
+                    this.y += this.speed;
+                    this.alpha -= 0.015;
+                    if (this.alpha <= 0) this.reset();
+                    this.draw();
+                }
+            }
+
+            function initSpaceEffect() {
+                stars = [];
+                shootingStars = [];
+                for (let i = 0; i < numStars; i++) {
+                    stars.push(new Star());
+                }
+                for (let i = 0; i < numShootingStars; i++) {
+                    setTimeout(() => {
+                        shootingStars.push(new ShootingStar());
+                    }, Math.random() * 3000);
+                }
+            }
+
+            function animateSpaceEffect() {
+                requestAnimationFrame(animateSpaceEffect);
+                ctx.fillStyle = `rgba(13, 10, 27, 0.4)`;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                stars.forEach(star => star.update());
+                shootingStars.forEach(shootingStar => shootingStar.update());
+            }
+            
+            window.addEventListener('resize', () => {
+                canvas.width = innerWidth;
+                canvas.height = innerHeight;
+                initSpaceEffect();
+            });
+            
+            initSpaceEffect();
+            animateSpaceEffect();
+        });
+    </script>
+</body>
+</html>
